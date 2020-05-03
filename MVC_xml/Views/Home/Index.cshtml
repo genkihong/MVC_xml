@@ -1,31 +1,342 @@
-﻿@{
+﻿@using System.Security.Cryptography
+@using MVC_xml.Models
+@*@model IEnumerable<MVC_xml.Models.Weather>*@
+@model IEnumerable<WeatherData>
+@*@model MVC_xml.Models.Weather*@
+
+@{
     ViewBag.Title = "Home Page";
+    var group = Model.GroupBy(x => x.zone);
 }
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-</div>
+<h1 class="mb-5">
+    @ViewBag.City<span>未來二天天氣預報</span>
+</h1>
+@{
+    int i = 0;
+    foreach (var items in group)
+    {
+        <div class="mb-3">
+            <button class="btn btn-block btn-outline-secondary mb-3" type="button" data-toggle="collapse" data-target="#collapse-@i">
+                @items.Key
+            </button>
+            <table id="collapse-@i" class="table collapse">
+                <thead>
+                    <tr>
+                        <th scope="col">時間</th>
+                        <th width="100">溫度</th>
+                        <th width="100">露點溫度</th>
+                        <th width="100">相對濕度</th>
+                        <th width="150">6小時降雨機率</th>
+                        <th width="150">12小時降雨機率</th>
+                        <th>風向</th>
+                        <th>風速</th>
+                        <th width="120">舒適度指數</th>
+                        <th width="100">體感溫度</th>
+                        <th width="100">天氣現象</th>
+                        <th>天氣預報綜合描述</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in items)
+                    {
+                        <tr>
+                            <th scope="row">@item.startTime</th>
+                            <td>@item.Tvalue @item.Tmeasures</td>
+                            <td>@item.Tdvalue @item.Tdmeasures</td>
+                            <td>@item.RHvalue @item.RHmeasures</td>
+                            <td>@item.PoP6hvalue @item.PoP6hmeasures</td>
+                            <td>@item.PoP12hvalue @item.PoP12hmeasures</td>
+                            <td>@item.WDvalue @item.WDmeasures
+                            <td>@item.WSvalue @item.WSmeasures</td>
+                            <td>@item.CIvalue</td>
+                            <td>@item.ATvalue @item.ATmeasures</td>
+                            <td>@item.Wxvalue/@item.Wxvalue2</td>
+                            <td>@item.descriptionValue</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-    </div>
-</div>
+        i++;
+    }
+}
+
+
+@*<div class="row row-cols-1 row-cols-md-3">
+        @foreach (var items in group)
+        {
+            <div class="col mb-3">
+                <div class="card p-3">
+                    <h2>@items.Key</h2>
+                    @foreach (var item in items)
+                    {
+                        <ul>
+                            <li class="mb-3">
+                                時間: @item.startTime
+                            </li>
+                            <li class="mb-3">
+                                <span>@item.T</span>(@item.TName):@item.Tvalue @item.Tmeasures
+                            </li>
+                            <li class="mb-3">
+                                <span>@item.Td</span>(@item.TdName): @item.Tdvalue @item.Tdmeasures
+                            </li>
+                            <li class="mb-3">
+                                <span>@item.RH</span>(@item.RHName): @item.RHvalue @item.RHmeasures
+                            </li>
+                            <li class="mb-3" style="@(item.PoP6h == null ? "display: none" : "")">
+                                <span>@item.PoP6h</span>(@item.PoP6hName): @item.PoP6hvalue @item.PoP6hmeasures
+                            </li>
+                            <li class="mb-3" style="@(item.PoP12h == null ? "display: none" : "")">
+                                <span>@item.PoP12h</span>(@item.PoP12hName): @item.PoP12hvalue @item.PoP12hmeasures
+                            </li>
+                            <li class="mb-3">
+                                <span>@item.WD</span>(@item.WDName): @item.WDvalue @item.WDmeasures
+                            </li>
+                            <li class="mb-3">
+                                <span>@item.WS</span>(@item.WSName): @item.WSvalue @item.WSmeasures
+                            </li>
+                            <li class="mb-3">
+                                <span>@item.CI</span>(@item.CIName): @item.CIvalue
+                            </li>
+                            <li class="mb-3">
+                                <span>@item.AT</span>(@item.ATName): @item.ATvalue @item.ATmeasures
+                            </li>
+                            <li class="mb-3">
+                                <span>@item.Wx</span>(@item.WxName): @item.Wxvalue/@item.Wxvalue2
+                            </li>
+                            <li>
+                                <span>@item.description</span>(@item.descriptionName): @item.descriptionValue
+                            </li>
+                        </ul>
+                    }
+                </div>
+            </div>
+        }
+    </div>*@
+
+
+
+
+@*<div class="row mb-3">
+        <div class="col-md-6 ">
+            <select class="form-control">
+                <option selected="" disabled="">請選擇地區</option>
+                @{
+                    int i = 0;
+                    foreach (var item in Model)
+                    {
+                        <option value="@i">@item.zone</option>
+                        i++;
+                    }
+                }
+            </select>
+        </div>
+    </div>*@
+
+
+@*<div class="row">
+        @{
+            int j = 0;
+            foreach (var item in Model)
+            {
+                <div class="col-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="card-title">@item.zone</h2>
+                            溫度
+                            <div>
+                                <h5>
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-@j">
+                                        @item.T
+                                    </button>
+                                </h5>
+                                <ul id="collapse-@j" class="collapse">
+                                    @foreach (var itemModel in item.WeatherTs)
+                                    {
+                                        <li>時間: @itemModel.dataTime</li>
+                                        <li>@itemModel.WeatherValue.value @itemModel.WeatherValue.measures</li>
+                                    }
+                                </ul>
+                            </div>
+                            露點溫度
+                            <div>
+                                <h5>
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-@(j+1)">
+                                        @item.Td
+                                    </button>
+                                </h5>
+                                <ul id="collapse-@(j+1)" class="collapse">
+                                    @foreach (var itemModel in item.WeatherTds)
+                                    {
+                                        <li>時間: @itemModel.dataTime</li>
+                                        <li>@itemModel.WeatherValue.value @itemModel.WeatherValue.measures</li>
+                                    }
+                                </ul>
+                            </div>
+                            相對濕度
+                            <div>
+                                <h5>
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-@(j+2)">
+                                        @item.RH
+                                    </button>
+                                </h5>
+                                <ul id="collapse-@(j+2)" class="collapse">
+                                    @foreach (var itemModel in item.WeatherRhs)
+                                    {
+                                        <li>時間: @itemModel.dataTime</li>
+                                        <li>
+                                            @itemModel.WeatherValue.value
+                                            @(itemModel.WeatherValue.measures == "百分比" ? "%" : "")
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                            6小時降雨機率
+                            <div>
+                                <h5>
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-@(j+3)">
+                                        @item.PoP6h
+                                    </button>
+                                </h5>
+                                <ul id="collapse-@(j+3)" class="collapse">
+                                    @foreach (var itemModel in item.WeatherPoP6Hs)
+                                    {
+                                        <li>開始時間: @itemModel.startTime</li>
+                                        <li>結束時間: @itemModel.endTime</li>
+                                        <li>
+                                            @itemModel.WeatherValue.value
+                                            @(itemModel.WeatherValue.measures == "百分比" ? "%" : "")
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                            12小時降雨機率
+                            <div>
+                                <h5>
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-@(j+4)">
+                                        @item.PoP12h
+                                    </button>
+                                </h5>
+                                <ul id="collapse-@(j+4)" class="collapse">
+                                    @foreach (var itemModel in item.WeatherPoP12Hs)
+                                    {
+                                        <li>開始時間: @itemModel.startTime</li>
+                                        <li>結束時間: @itemModel.endTime</li>
+                                        <li>
+                                            @itemModel.WeatherValue.value
+                                            @(itemModel.WeatherValue.measures == "百分比" ? "%" : "")
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                            風向
+                            <div>
+                                <h5>
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-@(j+5)">
+                                        @item.WD
+                                    </button>
+                                </h5>
+                                <ul id="collapse-@(j+5)" class="collapse">
+                                    @foreach (var itemModel in item.WeatherWds)
+                                    {
+                                        <li>時間: @itemModel.dataTime</li>
+                                        <li>
+                                            @itemModel.WeatherValue.value
+                                            @itemModel.WeatherValue.measures
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                            風速
+                            <div>
+                                <h5>
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-@(j+6)">
+                                        @item.WS
+                                    </button>
+                                </h5>
+                                <ul id="collapse-@(j+6)" class="collapse">
+                                    @foreach (var itemModel in item.WeatherWses)
+                                    {
+                                        <li>時間: @itemModel.dataTime</li>
+                                        <li>
+                                            @itemModel.WeatherValue.value
+                                            @itemModel.WeatherValue.measures
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                            舒適度指數
+                            <div>
+                                <h5>
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-@(j+7)">
+                                        @item.CI
+                                    </button>
+                                </h5>
+                                <ul id="collapse-@(j+7)" class="collapse">
+                                    @foreach (var itemModel in item.WeatherCis)
+                                    {
+                                        <li>時間: @itemModel.dataTime</li>
+                                        <li>@itemModel.WeatherValue.value</li>
+                                    }
+                                </ul>
+                            </div>
+                            體感溫度
+                            <div>
+                                <h5>
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-@(j+8)">
+                                        @item.AT
+                                    </button>
+                                </h5>
+                                <ul id="collapse-@(j+8)" class="collapse">
+                                    @foreach (var itemModel in item.WeatherAts)
+                                    {
+                                        <li>時間: @itemModel.dataTime</li>
+                                        <li>
+                                            @itemModel.WeatherValue.value
+                                            @itemModel.WeatherValue.measures
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                            天氣現象
+                            <div>
+                                <h5>
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-@(j+9)">
+                                        @item.Wx
+                                    </button>
+                                </h5>
+                                <ul id="collapse-@(j+9)" class="collapse">
+                                    @foreach (var itemModel in item.WeatherWxes)
+                                    {
+                                        <li>開始時間: @itemModel.startTime</li>
+                                        <li>結束時間: @itemModel.endTime</li>
+                                        <li>@itemModel.WeatherValue.value</li>
+                                    }
+                                </ul>
+                            </div>
+                            天氣預報綜合描述
+                            <div>
+                                <h5>
+                                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-@(j+10)">
+                                        @item.description
+                                    </button>
+                                </h5>
+                                <ul id="collapse-@(j+10)" class="collapse">
+                                    @foreach (var itemModel in item.WeatherDescriptions)
+                                    {
+                                        <li>開始時間: @itemModel.startTime</li>
+                                        <li>結束時間: @itemModel.endTime</li>
+                                        <li>@itemModel.WeatherValue.value</li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                j += 11;
+            }
+        }
+
+    </div>*@
